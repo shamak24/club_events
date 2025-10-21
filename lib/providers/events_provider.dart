@@ -1,217 +1,71 @@
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import '../models/model.dart';
+import 'package:hive/hive.dart';
+import '../models/model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:uuid/uuid.dart';
 
-// // Provider definition at the root level for app-wide state persistence
-// final eventListProvider = StateNotifierProvider<EventListNotifier, List<Event>>((ref) => EventListNotifier());
+final eventBoxProvider = Provider<Box<Event>>((ref) {
+  return Hive.box<Event>("events");
+});
 
-// final upcomingEventsProvider = Provider<List<Event>>((ref) {
-//   final events = ref.watch(eventListProvider);
-//   return events
-//       .where((event) => event.date.isAfter(DateTime.now()))
-//       .toList()
-//       ..sort((a, b) => a.date.compareTo(b.date));
-// });
+final eventListProvider = StateNotifierProvider<EventNotifier, List<Event>>((
+  ref,
+) {
+  final box = ref.watch(eventBoxProvider);
+  return EventNotifier(box);
+});
 
-// final favoriteEventsProvider = Provider<List<Event>>((ref) {
-//   final events = ref.watch(eventListProvider);
-//   return events.where((event) => event.isFavorite).toList();
-// });
+class EventNotifier extends StateNotifier<List<Event>> {
+  final Box<Event> box;
 
-// class EventListNotifier extends StateNotifier<List<Event>> {
-//   EventListNotifier() : super([]);
+  EventNotifier(this.box) : super(box.values.toList());
 
-//   void loadEvents(List<Event> events) {
-//     state = events;
-//   }
+  void addEvent(String title, String description, DateTime date) {
+    final id = Uuid().v4();
+    final event = Event(
+      id: id,
+      title: title,
+      description: description,
+      date: date,
+    );
 
-//   void addEvent(Event event) {
-//     if (_validateEvent(event)) {
-//       state = [...state, event];
-//     } else {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
-//   }
+    box.put(id, event);
+    state = box.values.toList();
+  }
 
-//   void removeEvent(String id) {
-//     state = state.where((event) => event.id != id).toList();
-//   }
+  void updateEvent(String id, String title, String description, DateTime date) {
+    final event = box.get(id);
+    if (event != null) {
+      event.title = title;
+      event.description = description;
+      event.date = date;
+      event.save();
+      state = box.values.toList();
+    }
+  }
 
-//   void toggleFavorite(String id) {
-//     state = state.map((event) {
-//       if (event.id == id) {
-//         return Event(
-//           id: event.id,
-//           title: event.title,
-//           date: event.date,
-//           description: event.description,
-//           isFavorite: !event.isFavorite,
-//         );
-//       }
-//       return event;
-//     }).toList();
-//   }
+  void deleteEvent(String id) {
+    box.delete(id);
+    state = box.values.toList();
+  }
 
-//   void updateEvent(Event updatedEvent) {
-//     if (!_validateEvent(updatedEvent)) {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
+  void toggleFav(String id) {
+    final event = box.get(id);
+    if (event != null) {
+      event.isFavorite = !event.isFavorite;
+      event.save();
+      state = box.values.toList();
+    }
+  }
 
-//     final eventExists = state.any((event) => event.id == updatedEvent.id);
-//     if (!eventExists) {
-//       throw ArgumentError('Cannot update non-existent event');
-//     }
-
-//     state = state.map((event) {
-//       if (event.id == updatedEvent.id) {
-//         return updatedEvent;
-//       }
-//       return event;
-//     }).toList();
-//   }
-
-//   bool _validateEvent(Event event) {
-//     return event.title.trim().isNotEmpty && 
-//            event.description.trim().isNotEmpty &&
-//            event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))); // Prevents events in the past
-//   }
-// }
-
-// class EventListNotifier extends StateNotifier<List<Event>> {
-//   EventListNotifier() : super([]);
-
-//   void loadEvents(List<Event> events) {
-//     state = events;
-//   }
-
-//   void addEvent(Event event) {
-//     if (_validateEvent(event)) {
-//       state = [...state, event];
-//     } else {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
-//   }
-
-//   void removeEvent(String id) {
-//     state = state.where((event) => event.id != id).toList();
-//   }
-
-//   void toggleFavorite(String id) {
-//     state = state.map((event) {
-//       if (event.id == id) {
-//         return Event(
-//           id: event.id,
-//           title: event.title,
-//           date: event.date,
-//           description: event.description,
-//           isFavorite: !event.isFavorite,
-//         );
-//       }
-//       return event;
-//     }).toList();
-//   }
-
-//   void updateEvent(Event updatedEvent) {
-//     if (!_validateEvent(updatedEvent)) {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
-
-//     final eventExists = state.any((event) => event.id == updatedEvent.id);
-//     if (!eventExists) {
-//       throw ArgumentError('Cannot update non-existent event');
-//     }
-
-//     state = state.map((event) {
-//       if (event.id == updatedEvent.id) {
-//         return updatedEvent;
-//       }
-//       return event;
-//     }).toList();
-//   }
-
-//   bool _validateEvent(Event event) {
-//     return event.title.trim().isNotEmpty && 
-//            event.description.trim().isNotEmpty &&
-//            event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))); // Prevents events in the past
-//   }
-
-//   // Convenience getters
-//   List<Event> get favoriteEvents => 
-//     state.where((event) => event.isFavorite).toList();
-
-//   List<Event> get upcomingEvents =>
-//     state.where((event) => event.date.isAfter(DateTime.now()))
-//          .toList()
-//          ..sort((a, b) => a.date.compareTo(b.date));
-// }
-
-// final eventsProvider = StateNotifierProvider<EventListNotifier, List<Event>>((ref) {
-//   return EventListNotifier();
-// });
-
-// class EventListNotifier extends StateNotifier<List<Event>> {
-//   EventListNotifier() : super([]);
-
-//   void loadEvents(List<Event> events) {
-//     state = events;
-//   }
-
-//   void addEvent(Event event) {
-//     if (_validateEvent(event)) {
-//       state = [...state, event];
-//     } else {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
-//   }
-
-//   void removeEvent(String id) {
-//     state = state.where((event) => event.id != id).toList();
-//   }
-
-//   void toggleFavorite(String id) {
-//     state = state.map((event) {
-//       if (event.id == id) {
-//         return Event(
-//           id: event.id,
-//           title: event.title,
-//           date: event.date,
-//           description: event.description,
-//           isFavorite: !event.isFavorite,
-//         );
-//       }
-//       return event;
-//     }).toList();
-//   }
-
-//   void updateEvent(Event updatedEvent) {
-//     if (!_validateEvent(updatedEvent)) {
-//       throw ArgumentError('Invalid event: Title and description cannot be empty');
-//     }
-
-//     final eventExists = state.any((event) => event.id == updatedEvent.id);
-//     if (!eventExists) {
-//       throw ArgumentError('Cannot update non-existent event');
-//     }
-
-//     state = state.map((event) {
-//       if (event.id == updatedEvent.id) {
-//         return updatedEvent;
-//       }
-//       return event;
-//     }).toList();
-//   }
-
-//   bool _validateEvent(Event event) {
-//     return event.title.trim().isNotEmpty && 
-//            event.description.trim().isNotEmpty &&
-//            event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))); // Prevents events in the past
-//   }
-
-//   // Convenience getters
-//   List<Event> get favoriteEvents => 
-//     state.where((event) => event.isFavorite).toList();
-
-//   List<Event> get upcomingEvents =>
-//     state.where((event) => event.date.isAfter(DateTime.now()))
-//          .toList()
-//          ..sort((a, b) => a.date.compareTo(b.date));
-// }
+  void completeEvent(String id) {
+    final event = box.get(id);
+    if (event != null) {
+      if (event.date.isAfter(DateTime.now())) {
+        event.isComplete = true;
+        event.save();
+        state = box.values.toList();
+      }
+    }
+  }
+}

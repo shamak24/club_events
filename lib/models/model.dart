@@ -1,11 +1,22 @@
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
-class Event {
+part 'model.g.dart';
+
+@HiveType(typeId: 0)
+class Event extends HiveObject {
+  @HiveField(0)
   final String id;
-  final String title;
-  final DateTime date;
-  final String description;
+  @HiveField(1)
+  String title;
+  @HiveField(2)
+  DateTime date;
+  @HiveField(3)
+  String description;
+  @HiveField(4)
   bool isFavorite;
+  @HiveField(5)
+  bool isComplete;
 
   Event({
     String? id,
@@ -13,43 +24,6 @@ class Event {
     required this.date,
     required this.description,
     this.isFavorite = false,
+    this.isComplete = false,
   }) : id = id ?? const Uuid().v4();
-
-  // Convert Event to Map
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'date': date.toIso8601String(),
-      'description': description,
-      'isFavorite': isFavorite,
-    };
-  }
-
-  // Create Event from Map
-  factory Event.fromMap(Map<String, dynamic> map) {
-    return Event(
-      id: map['id'],
-      title: map['title'],
-      date: DateTime.parse(map['date']),
-      description: map['description'],
-      isFavorite: map['isFavorite'] ?? false,
-    );
-  }
-
-  // Create copy of Event with optional parameter updates
-  Event copyWith({
-    String? title,
-    DateTime? date,
-    String? description,
-    bool? isFavorite,
-  }) {
-    return Event(
-      id: id,
-      title: title ?? this.title,
-      date: date ?? this.date,
-      description: description ?? this.description,
-      isFavorite: isFavorite ?? this.isFavorite,
-    );
-  }
 }
