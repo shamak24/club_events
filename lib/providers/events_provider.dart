@@ -58,14 +58,8 @@ class EventNotifier extends StateNotifier<List<Event>> {
     }
   }
 
-  void completeEvent(String id) {
-    final event = box.get(id);
-    if (event != null) {
-      if (event.date.isAfter(DateTime.now())) {
-        event.isComplete = true;
-        event.save();
-        state = box.values.toList();
-      }
-    }
+  List<Event> pastEvents(){
+    final now = DateTime.now();
+    return box.values.where((event)=> event.date.isBefore(now)).toList();
   }
 }

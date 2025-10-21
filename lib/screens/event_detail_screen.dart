@@ -12,21 +12,12 @@ class EventDetailsScreen extends StatelessWidget {
     return '${date.day} ${months[date.month - 1]}';
   }
 
-  String _formatTime(DateTime date) {
-    final hour = date.hour;
-    final minute = date.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final formattedHour = (hour % 12 == 0) ? 12 : hour % 12;
-    return '$formattedHour:$minute $period';
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -36,13 +27,6 @@ class EventDetailsScreen extends StatelessWidget {
             elevation: 0,
             backgroundColor: colorScheme.primary,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                event.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -54,6 +38,28 @@ class EventDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/club_logo.png',
+                        height: 70,
+                        width: 70,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        event.title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             actions: [
@@ -62,7 +68,9 @@ class EventDetailsScreen extends StatelessWidget {
                   event.isFavorite ? Icons.favorite : Icons.favorite_border,
                   color: event.isFavorite ? Colors.red : Colors.white,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  
+                },
               ),
             ],
           ),
@@ -87,12 +95,6 @@ class EventDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: colorScheme.primary,
-        label: const Text('RSVP'),
-        icon: const Icon(Icons.check_circle_outline),
-      ),
     );
   }
 
@@ -115,12 +117,6 @@ class EventDetailsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                _formatTime(event.date),
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.primary.withOpacity(0.8),
-                ),
-              ),
             ],
           ),
         ),
@@ -167,7 +163,7 @@ class EventDetailsScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                'Club House, Main Building',
+                'Auditorium, VIT Bhopal University',
                 style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.onBackground,
                 ),
@@ -198,7 +194,7 @@ class EventDetailsScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                'Tech Club Committee',
+                'Mozilla Firefox Club',
                 style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.onBackground,
                 ),

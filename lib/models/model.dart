@@ -15,8 +15,6 @@ class Event extends HiveObject {
   String description;
   @HiveField(4)
   bool isFavorite;
-  @HiveField(5)
-  bool isComplete;
 
   Event({
     String? id,
@@ -24,6 +22,5 @@ class Event extends HiveObject {
     required this.date,
     required this.description,
     this.isFavorite = false,
-    this.isComplete = false,
   }) : id = id ?? const Uuid().v4();
 }
