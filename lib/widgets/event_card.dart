@@ -1,19 +1,17 @@
+import 'package:club_events/widgets/heart_button.dart';
 import 'package:flutter/material.dart';
 import '../models/model.dart';
 import '../screens/event_detail_screen.dart';
 
-String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = date.difference(now).inDays;
+String _formatDate(DateTime startDate, DateTime endDate) {
+    DateTime now = DateTime.now();
 
-    if (difference == 0) {
-      return 'Tomorrow';
-    } else if (difference == -1) {
+    if (startDate.isBefore(now) && endDate.isAfter(now)) {
       return 'Today';
-    } else if (difference < 7) {
-      return '${date.toString().split(' ')[0].split('-')[2]} ${_getMonth(date.month)}';
+    } else if (startDate.isAfter(now) && startDate.isBefore(now.add(Duration(days: 1)))) {
+      return 'Tomorrow';
     } else {
-      return '${date.toString().split(' ')[0].split('-')[2]} ${_getMonth(date.month)}';
+      return '${startDate.toString().split(' ')[0].split('-')[2]} ${_getMonth(startDate.month)}';
     }
   }
 
@@ -35,11 +33,22 @@ String _getMonth(int month) {
     return months[month - 1];
   }
 
-class UpcomingEventCard extends StatelessWidget {
+void toggleFavorite(Event event){
+  event.isFavorite = !event.isFavorite;
+  event.save();
+}
+
+class EventCard extends StatefulWidget {
   final Event event;
+  final bool isPast;
 
-  const UpcomingEventCard({Key? key, required this.event}) : super(key: key);
+  const EventCard({Key? key, required this.event, required this.isPast}) : super(key: key);
 
+  @override
+  State<EventCard> createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -58,7 +67,7 @@ class UpcomingEventCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EventDetailsScreen(event: event),
+              builder: (context) => EventDetailsScreen(event: widget.event, toggleFavorite: () => toggleFavorite(widget.event)),
             ),
           );
         },
@@ -79,7 +88,7 @@ class UpcomingEventCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _formatDate(event.date),
+                      _formatDate(widget.event.startDate, widget.event.endDate),
                       style: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.w500,
@@ -96,7 +105,7 @@ class UpcomingEventCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                event.title,
+                widget.event.title,
                 style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onBackground,
@@ -104,7 +113,7 @@ class UpcomingEventCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                event.description,
+                widget.event.description,
                 style: textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onBackground.withOpacity(0.8),
                   overflow: TextOverflow.ellipsis,
@@ -112,22 +121,33 @@ class UpcomingEventCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Row(
+                spacing: 8,
                 children: [
                   Icon(
-                    Icons.people_outline,
+                    widget.isPast ? Icons.lock_outline : Icons.people_outline,
                     size: 20,
                     color: colorScheme.primary,
                   ),
-                  const SizedBox(width: 8),
                   Text(
-                    'Open for all',
+                    widget.isPast ? 'Event Ended' : 'Open to All',
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                  const Spacer(),
+                  HeartButton(
+                    isFavorite: widget.event.isFavorite,
+                    size: 24,
+                    onPressed: () {
+                      setState(() {
+                        toggleFavorite(widget.event);
+                      });
+                    },
+                  ),
                 ],
               ),
+              
             ],
           ),
         ),

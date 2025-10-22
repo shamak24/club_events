@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import '../models/model.dart';
 
-class EventDetailsScreen extends StatelessWidget {
+class EventDetailsScreen extends StatefulWidget {
   final Event event;
+  final VoidCallback toggleFavorite;
 
-  const EventDetailsScreen({Key? key, required this.event}) : super(key: key);
+  const EventDetailsScreen({Key? key, required this.event, required this.toggleFavorite}) : super(key: key);
 
-  String _formatDate(DateTime date) {
+  @override
+  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  String _formatDate(DateTime startDate, DateTime endDate) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${date.day} ${months[date.month - 1]}';
+    return '${startDate.day} ${months[startDate.month - 1]} - ${endDate.day} ${months[endDate.month - 1]}';
   }
 
   @override
@@ -49,11 +55,11 @@ class EventDetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        event.title,
+                        widget.event.title,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -65,11 +71,14 @@ class EventDetailsScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: Icon(
-                  event.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: event.isFavorite ? Colors.red : Colors.white,
+                  widget.event.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: widget.event.isFavorite ? Colors.red : Colors.black,
+                  size: 30,
                 ),
                 onPressed: () {
-                  
+                  setState(() {
+                        widget.toggleFavorite();
+                      });
                 },
               ),
             ],
@@ -110,7 +119,7 @@ class EventDetailsScreen extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                _formatDate(event.date),
+                _formatDate(widget.event.startDate, widget.event.endDate),
                 style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.w600,
@@ -137,7 +146,7 @@ class EventDetailsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          event.description,
+          widget.event.description,
           style: textTheme.bodyLarge?.copyWith(
             color: colorScheme.onBackground.withOpacity(0.8),
             height: 1.5,

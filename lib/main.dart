@@ -9,7 +9,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(EventAdapter());
 
-  await Hive.openBox<Event>("events");
+  await Hive.openBox<Event>('events');
 
   runApp(const ProviderScope(child: MyApp()));
 }

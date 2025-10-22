@@ -10,16 +10,19 @@ class Event extends HiveObject {
   @HiveField(1)
   String title;
   @HiveField(2)
-  DateTime date;
+  DateTime startDate;
   @HiveField(3)
   String description;
   @HiveField(4)
   bool isFavorite;
+  @HiveField(5)
+  DateTime endDate;
 
   Event({
     String? id,
     required this.title,
-    required this.date,
+    required this.startDate,
+    required this.endDate,
     required this.description,
     this.isFavorite = false,
   }) : id = id ?? const Uuid().v4();

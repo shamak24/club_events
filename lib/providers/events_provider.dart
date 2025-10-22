@@ -20,25 +20,27 @@ class EventNotifier extends StateNotifier<List<Event>> {
 
   EventNotifier(this.box) : super(box.values.toList());
 
-  void addEvent(String title, String description, DateTime date) {
+  void addEvent(String title, String description, DateTime startDate, DateTime endDate) {
     final id = Uuid().v4();
     final event = Event(
       id: id,
       title: title,
       description: description,
-      date: date,
+      startDate: startDate,
+      endDate: endDate,
     );
 
     box.put(id, event);
     state = box.values.toList();
   }
 
-  void updateEvent(String id, String title, String description, DateTime date) {
+  void updateEvent(String id, String title, String description, DateTime startDate, DateTime endDate) {
     final event = box.get(id);
     if (event != null) {
       event.title = title;
       event.description = description;
-      event.date = date;
+      event.startDate = startDate;
+      event.endDate = endDate;
       event.save();
       state = box.values.toList();
     }
@@ -47,19 +49,5 @@ class EventNotifier extends StateNotifier<List<Event>> {
   void deleteEvent(String id) {
     box.delete(id);
     state = box.values.toList();
-  }
-
-  void toggleFav(String id) {
-    final event = box.get(id);
-    if (event != null) {
-      event.isFavorite = !event.isFavorite;
-      event.save();
-      state = box.values.toList();
-    }
-  }
-
-  List<Event> pastEvents(){
-    final now = DateTime.now();
-    return box.values.where((event)=> event.date.isBefore(now)).toList();
   }
 }
