@@ -4,12 +4,13 @@ import '../models/model.dart';
 import '../screens/event_detail_screen.dart';
 
 String _formatDate(DateTime startDate, DateTime endDate) {
+  DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
   DateTime now = DateTime.now();
-
-  if (startDate.isBefore(now) && endDate.isAfter(now)) {
+  if ((onlyDate(startDate).isAtSameMomentAs(onlyDate(now)) || onlyDate(startDate).isBefore(onlyDate(now))) &&
+    (onlyDate(endDate).isAtSameMomentAs(onlyDate(now))   || onlyDate(endDate).isAfter(onlyDate(now)))) {
     return 'Today';
-  } else if (startDate.isAfter(now) &&
-      startDate.isBefore(now.add(Duration(days: 1)))) {
+  } else if (onlyDate(startDate).isAfter(now) &&
+      onlyDate(startDate).isBefore(now.add(Duration(days: 1)))) {
     return 'Tomorrow';
   } else {
     return '${startDate.toString().split(' ')[0].split('-')[2]} ${_getMonth(startDate.month)}';
@@ -108,12 +109,13 @@ class _EventCardState extends State<EventCard> {
                       widget.toggleDelete();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
+                          duration: Duration(seconds: 1),
                           backgroundColor: colorScheme.errorContainer,
                           content: Text(
                             'Event Deleted Successfully',
                             style: TextStyle(
                               color: colorScheme.onErrorContainer,
-                              fontSize: 15,
+                              fontSize: 18,
                             ),
                           ),
                         ),
@@ -162,6 +164,33 @@ class _EventCardState extends State<EventCard> {
                       setState(() {
                         toggleFavorite(widget.event);
                       });
+                      widget.event.isFavorite
+                          ? ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                duration: Duration(seconds: 1),
+                                backgroundColor: colorScheme.primaryContainer,
+                                content: Text(
+                                  'Added to Favorites',
+                                  style: TextStyle(
+                                    color: colorScheme.onPrimaryContainer,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                duration: Duration(seconds: 1),
+                                backgroundColor: colorScheme.primaryContainer,
+                                content: Text(
+                                  'Removed from Favorites',
+                                  style: TextStyle(
+                                    color: colorScheme.onPrimaryContainer,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            );
                     },
                   ),
                 ],

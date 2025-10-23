@@ -20,17 +20,32 @@ class _LandingScreenState extends State<LandingScreen> {
     return Consumer(
       builder: (context, ref, child) {
         DateTime now = DateTime.now();
+        DateTime onlyDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+        final today = onlyDate(now);
+
         final events = ref.watch(eventListProvider);
         final eventProvider = ref.read(eventListProvider.notifier);
-        final upcomingEvents = events
-            .where((event) => event.startDate.isAfter(now))
-            .toList();
-        final pastEvents = events
-            .where((event) => event.endDate.isBefore(now) && !event.endDate.isAtSameMomentAs(now))
-            .toList();
-        final ongoingEvents = events
-            .where((event) => event.startDate.isBefore(now) && (event.endDate.isAfter(now) || event.endDate.isAtSameMomentAs(now)))
-            .toList();
+        //UPCOMING EVENTS
+        final upcomingEvents = events.where((event) {
+          final startOnly = onlyDate(event.startDate);
+          return startOnly.isAfter(today);
+        }).toList();
+        //PAST EVENTS
+        final pastEvents = events.where((event) {
+          final endDateOnly = onlyDate(event.endDate);
+          return endDateOnly.isBefore(today);
+        }).toList();
+        //ONGOING EVENTS
+        final ongoingEvents = events.where((event) {
+          final startOnly = onlyDate(event.startDate);
+          final endOnly = onlyDate(event.endDate);
+          // inclusive: start <= today <= end
+          final startsOnOrBefore = !startOnly.isAfter(
+            today,
+          ); // startOnly <= today
+          final endsOnOrAfter = !endOnly.isBefore(today); // endOnly >= today
+          return startsOnOrBefore && endsOnOrAfter;
+        }).toList();
 
         return Scaffold(
           backgroundColor: colorScheme.background,
@@ -107,9 +122,13 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: ongoingEvents.length,
                           itemBuilder: (context, index) {
                             final event = ongoingEvents[index];
-                            return EventCard(event: event, isPast: false, toggleDelete: () {
-                              eventProvider.deleteEvent(event.id);
-                            });
+                            return EventCard(
+                              event: event,
+                              isPast: false,
+                              toggleDelete: () {
+                                eventProvider.deleteEvent(event.id);
+                              },
+                            );
                           },
                         ),
                       ),
@@ -136,9 +155,13 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: upcomingEvents.length,
                           itemBuilder: (context, index) {
                             final event = upcomingEvents[index];
-                            return EventCard(event: event, isPast: false, toggleDelete: () {
-                              eventProvider.deleteEvent(event.id);
-                            });
+                            return EventCard(
+                              event: event,
+                              isPast: false,
+                              toggleDelete: () {
+                                eventProvider.deleteEvent(event.id);
+                              },
+                            );
                           },
                         ),
                       ),
@@ -163,13 +186,17 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: pastEvents.length,
                           itemBuilder: (context, index) {
                             final event = pastEvents[index];
-                            return EventCard(event: event, isPast: true, toggleDelete: () {
-                              eventProvider.deleteEvent(event.id);
-                            });
+                            return EventCard(
+                              event: event,
+                              isPast: true,
+                              toggleDelete: () {
+                                eventProvider.deleteEvent(event.id);
+                              },
+                            );
                           },
                         ),
                       ),
-                        SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
             ),
           ),

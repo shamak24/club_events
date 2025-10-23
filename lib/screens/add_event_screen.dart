@@ -17,31 +17,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
   DateTime _selectedStartDate = DateTime.now();
   DateTime _selectedEndDate = DateTime.now();
 
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedEndDate,
-      firstDate: _selectedStartDate,
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedEndDate) {
-      setState(() {
-        _selectedEndDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectStartDate(BuildContext context) async {
+    Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedStartDate,
@@ -65,11 +41,42 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedEndDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedEndDate) {
+      setState(() {
+        _selectedEndDate = picked;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStartDate = DateTime.now();
+    _selectedEndDate = DateTime.now();
   }
 
   @override
@@ -82,7 +89,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
         final eventProvider = ref.read(eventListProvider.notifier);
 
         void submitForm(){
-          if (_formKey.currentState!.validate()) {
+          if(!(_selectedEndDate.isAfter(_selectedStartDate) || _selectedEndDate.isAtSameMomentAs(_selectedStartDate))){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Event end date must be either after start date or the same date'),
+                backgroundColor: colorScheme.error,
+              ),
+            );
+          } else if (_formKey.currentState!.validate()) {
             eventProvider.addEvent(
               _titleController.text,
               _descriptionController.text,
@@ -90,6 +104,13 @@ class _AddEventScreenState extends State<AddEventScreen> {
               _selectedEndDate,
             );
             Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 1),
+                content: const Text('Event created successfully'),
+                backgroundColor: colorScheme.primary,
+              ),
+            );
           }
         }
 

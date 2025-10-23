@@ -79,6 +79,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   setState(() {
                         widget.toggleFavorite();
                       });
+                  widget.event.isFavorite ? 
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: Duration(seconds: 1),
+                      backgroundColor: colorScheme.primaryContainer,
+                      content: Text(
+                        'Added to Favorites',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ) : ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: Duration(seconds: 1),
+                      backgroundColor: colorScheme.primaryContainer,
+                      content: Text(
+                        'Removed from Favorites',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
             ],

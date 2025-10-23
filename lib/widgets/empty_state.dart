@@ -7,6 +7,8 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Center(
@@ -16,14 +18,14 @@ class EmptyState extends StatelessWidget {
             Icon(
               Icons.event_busy,
               size: 80,
-              color: Colors.grey[600],
+              color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
             Text(
               message,
               style: TextStyle(
                 fontSize: 17,
-                color: Colors.grey[600],
+                color: colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
