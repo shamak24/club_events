@@ -1,8 +1,22 @@
-# Mozilla FireFox Club Events App
+# 🦊 Mozilla FireFox Club Events App
 
 A Flutter application for managing and viewing club events.
 
-## Features
+## ⬇️ Download
+
+🔗 [Download Latest Release](https://github.com/shamak24/club_events/releases/latest)
+
+The app is available for Android users through GitHub releases. Simply download the APK file from the latest release and install it on your Android device.
+
+## 🛠️ Tech Stack
+
+- **Flutter**: UI framework for cross-platform development
+- **Dart**: Programming language
+- **Riverpod**: State management solution
+- **Hive**: Local database for persistence
+- **flutter_launcher_icons**: App icon generation and management
+
+## ✨ Features
 
 - 📅 View upcoming club events
 - ✨ Modern, minimalist UI design
@@ -11,16 +25,16 @@ A Flutter application for managing and viewing club events.
 - 📱 Responsive design
 - 💾 Local data persistence
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
 - Flutter SDK (latest stable version)
 - Dart SDK
 - Android Studio / VS Code with Flutter extensions
 - Android emulator or iOS simulator
 
-### Installation
+### 💻 Installation
 
 1. Clone the repository
 ```bash
@@ -42,7 +56,7 @@ flutter pub get
 flutter run
 ```
 
-## State Management
+## 📊 State Management
 
 This project uses **Riverpod** for state management. Riverpod was chosen for several reasons:
 
@@ -52,7 +66,7 @@ This project uses **Riverpod** for state management. Riverpod was chosen for sev
 - **Testing**: Easier to test compared to other solutions
 - **Performance**: Efficient rebuilds and better performance
 
-### Provider Structure
+### 🏗️ Provider Structure
 
 The app uses a combination of Riverpod and Hive for state management and persistence:
 
@@ -77,29 +91,29 @@ The app uses a combination of Riverpod and Hive for state management and persist
   - Delete events
   - Automatically persists changes to Hive storage
 
-## Extra Features
+## 🎯 Extra Features
 
-### 1. Favorites System
+### 1. ❤️ Favorites System
 - Mark events as favorites
 - Filter events by favorites
 - Persistent favorite status
 
-### 2. Data Persistence
+### 2. 💾 Data Persistence
 - Events are stored locally using shared preferences
 - Automatic data loading and saving
 - Offline capability
 
-### 3. UI/UX Features
+### 3. 🎨 UI/UX Features
 - Custom date formatting
 - Material 3 design implementation
 - Responsive layout adapting to different screen sizes
 
-### 4. Event Management
+### 4. 📝 Event Management
 - Create new events
 - Delete events
 - Add events to favorites
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 lib/
