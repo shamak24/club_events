@@ -4,36 +4,37 @@ import '../models/model.dart';
 import '../screens/event_detail_screen.dart';
 
 String _formatDate(DateTime startDate, DateTime endDate) {
-    DateTime now = DateTime.now();
+  DateTime now = DateTime.now();
 
-    if (startDate.isBefore(now) && endDate.isAfter(now)) {
-      return 'Today';
-    } else if (startDate.isAfter(now) && startDate.isBefore(now.add(Duration(days: 1)))) {
-      return 'Tomorrow';
-    } else {
-      return '${startDate.toString().split(' ')[0].split('-')[2]} ${_getMonth(startDate.month)}';
-    }
+  if (startDate.isBefore(now) && endDate.isAfter(now)) {
+    return 'Today';
+  } else if (startDate.isAfter(now) &&
+      startDate.isBefore(now.add(Duration(days: 1)))) {
+    return 'Tomorrow';
+  } else {
+    return '${startDate.toString().split(' ')[0].split('-')[2]} ${_getMonth(startDate.month)}';
   }
+}
 
 String _getMonth(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return months[month - 1];
-  }
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return months[month - 1];
+}
 
-void toggleFavorite(Event event){
+void toggleFavorite(Event event) {
   event.isFavorite = !event.isFavorite;
   event.save();
 }
@@ -41,8 +42,10 @@ void toggleFavorite(Event event){
 class EventCard extends StatefulWidget {
   final Event event;
   final bool isPast;
+  final VoidCallback toggleDelete;
 
-  const EventCard({Key? key, required this.event, required this.isPast}) : super(key: key);
+  const EventCard({Key? key, required this.event, required this.isPast, required this.toggleDelete})
+    : super(key: key);
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -53,26 +56,29 @@ class _EventCardState extends State<EventCard> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(15),
         side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(15),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EventDetailsScreen(event: widget.event, toggleFavorite: () => toggleFavorite(widget.event)),
+              builder: (context) => EventDetailsScreen(
+                event: widget.event,
+                toggleFavorite: () => toggleFavorite(widget.event),
+              ),
             ),
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -96,14 +102,27 @@ class _EventCardState extends State<EventCard> {
                     ),
                   ),
                   const Spacer(),
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 20,
-                    color: colorScheme.primary,
+                  IconButton(
+                    icon: Icon(Icons.delete_forever, size: 25, color: colorScheme.error),
+                    onPressed: () {
+                      widget.toggleDelete();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: colorScheme.errorContainer,
+                          content: Text(
+                            'Event Deleted Successfully',
+                            style: TextStyle(
+                              color: colorScheme.onErrorContainer,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 widget.event.title,
                 style: textTheme.titleLarge?.copyWith(
@@ -119,7 +138,7 @@ class _EventCardState extends State<EventCard> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 spacing: 8,
                 children: [
@@ -147,7 +166,6 @@ class _EventCardState extends State<EventCard> {
                   ),
                 ],
               ),
-              
             ],
           ),
         ),

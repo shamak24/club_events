@@ -7,7 +7,6 @@ import 'package:uuid/uuid.dart';
 final eventBoxProvider = Provider<Box<Event>>((ref) {
   return Hive.box<Event>("events");
 });
-
 final eventListProvider = StateNotifierProvider<EventNotifier, List<Event>>((
   ref,
 ) {
@@ -20,7 +19,12 @@ class EventNotifier extends StateNotifier<List<Event>> {
 
   EventNotifier(this.box) : super(box.values.toList());
 
-  void addEvent(String title, String description, DateTime startDate, DateTime endDate) {
+  void addEvent(
+    String title,
+    String description,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
     final id = Uuid().v4();
     final event = Event(
       id: id,
@@ -34,7 +38,14 @@ class EventNotifier extends StateNotifier<List<Event>> {
     state = box.values.toList();
   }
 
-  void updateEvent(String id, String title, String description, DateTime startDate, DateTime endDate) {
+  // CAN BE IMPLEMENTED LATER
+  void updateEvent(
+    String id,
+    String title,
+    String description,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
     final event = box.get(id);
     if (event != null) {
       event.title = title;

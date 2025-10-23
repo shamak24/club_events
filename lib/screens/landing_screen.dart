@@ -21,14 +21,15 @@ class _LandingScreenState extends State<LandingScreen> {
       builder: (context, ref, child) {
         DateTime now = DateTime.now();
         final events = ref.watch(eventListProvider);
+        final eventProvider = ref.read(eventListProvider.notifier);
         final upcomingEvents = events
             .where((event) => event.startDate.isAfter(now))
             .toList();
         final pastEvents = events
-            .where((event) => event.endDate.isBefore(now))
+            .where((event) => event.endDate.isBefore(now) && !event.endDate.isAtSameMomentAs(now))
             .toList();
         final ongoingEvents = events
-            .where((event) => event.startDate.isBefore(now) && event.endDate.isAfter(now))
+            .where((event) => event.startDate.isBefore(now) && (event.endDate.isAfter(now) || event.endDate.isAtSameMomentAs(now)))
             .toList();
 
         return Scaffold(
@@ -106,7 +107,9 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: ongoingEvents.length,
                           itemBuilder: (context, index) {
                             final event = ongoingEvents[index];
-                            return EventCard(event: event, isPast: false);
+                            return EventCard(event: event, isPast: false, toggleDelete: () {
+                              eventProvider.deleteEvent(event.id);
+                            });
                           },
                         ),
                       ),
@@ -133,7 +136,9 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: upcomingEvents.length,
                           itemBuilder: (context, index) {
                             final event = upcomingEvents[index];
-                            return EventCard(event: event, isPast: false);
+                            return EventCard(event: event, isPast: false, toggleDelete: () {
+                              eventProvider.deleteEvent(event.id);
+                            });
                           },
                         ),
                       ),
@@ -158,10 +163,13 @@ class _LandingScreenState extends State<LandingScreen> {
                           itemCount: pastEvents.length,
                           itemBuilder: (context, index) {
                             final event = pastEvents[index];
-                            return EventCard(event: event, isPast: true);
+                            return EventCard(event: event, isPast: true, toggleDelete: () {
+                              eventProvider.deleteEvent(event.id);
+                            });
                           },
                         ),
                       ),
+                        SizedBox(height: 20),
               ],
             ),
           ),
@@ -174,7 +182,7 @@ class _LandingScreenState extends State<LandingScreen> {
               );
             },
             icon: const Icon(Icons.add),
-            label: const Text('Add Event'),
+            label: const Text('Event'),
             elevation: 2,
           ),
         );
