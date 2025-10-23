@@ -123,3 +123,11 @@ lib/
 └── widgets/        # Reusable widgets
 |__ main.dart        # Entry point
 ```
+
+## 📱 Screenshots
+
+<div style="display: flex; justify-content: space-between;">
+  <img src="./screenshots/home.png" width="32%" alt="Home Screen"/>
+  <img src="./screenshots/newEvent.png" width="32%" alt="New Event"/>
+  <img src="./screenshots/eventDetail.png" width="32%" alt="Event Details"/>
+</div>
